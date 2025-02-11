@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src", // Set the base URL to the `src` folder
+    "paths": {
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@router/*": ["router/*"]
+    },
+    "jsx": "react"
+  },
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
