@@ -1,14 +1,30 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { Link } from "react-router-dom";
 import InputMask from 'react-input-mask';
+import { Link } from "react-router-dom";
+import { useFormContext } from './contexts/loginFormContext';
+import { RecoveryFormValues } from "./types/auth";
 import { recoveryValidationSchema } from './validations/recoveryPasswordValidator';
+import { useAuth } from "./hooks/authHook";
+import { useNavigate } from "react-router-dom";
 import './styles/recoverPassword.css';
 
-const RecoverPassword = () => {
+const RecoveryPassword = () => {
+  const { handleRecovery, loading, error } = useAuth();
+  const { formValues, updateFormValues, resetForm } = useFormContext();
+  const navigate = useNavigate();
+  
+  const handleSubmit = async (values: RecoveryFormValues, { setSubmitting }: any) => {
 
-  const handleSubmit = (values: { contact: string; contactType: string }, { setSubmitting }: any) => {
-    console.log('Recovery Request Submitted:', values);
-    setSubmitting(false);
+    try {
+      const result = await handleRecovery(values);
+      updateFormValues('recoveryPassword', { contact: '' });
+      console.log(result);
+      navigate('/');
+    } catch (err: any) {
+      alert(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -17,11 +33,11 @@ const RecoverPassword = () => {
         <h2 className="recovery-title">Recover Password</h2>
 
         <Formik
-          initialValues={{ contact: '', contactType: 'email' }}
+          initialValues={formValues.recoveryPassword}
           validationSchema={recoveryValidationSchema}
           onSubmit={handleSubmit}
-        >
-          {({ isSubmitting, values, setFieldValue, setFieldError, setFieldTouched }) => (
+          validateOnMount>
+          {({ isSubmitting, isValid, values, setFieldValue, setFieldError, setFieldTouched }) => (
             <Form className="space-y-4">
               <div className="flex items-center space-x-4 mb-4">
 
@@ -94,21 +110,20 @@ const RecoverPassword = () => {
               <button
                 type="submit"
                 className="submit-button"
-                disabled={isSubmitting || !values.contact} >
-                Send Recovery Link
+                disabled={isSubmitting || !isValid} >
+                 {loading ? "Recovering..." : "Send Recovery Link"}
               </button>
+              {/* {isSubmitting.toString()} */}
+              <div className="link-container">
+                <Link to="/" className="link" onClick={() => updateFormValues('recoveryPassword', values)}>Go back to Login</Link>
+              </div>
             </Form>
           )}
         </Formik>
-
-        <div className="link-container">
-          <Link to="/" className="link">
-            Go back to Login
-          </Link>
-        </div>
+        {error && <p className="error-message">{error}</p>}
       </div>
     </div>
   );
 };
 
-export default RecoverPassword;
+export default RecoveryPassword;

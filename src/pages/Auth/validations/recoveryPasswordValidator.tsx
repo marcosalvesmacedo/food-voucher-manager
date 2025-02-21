@@ -7,7 +7,7 @@ export const recoveryValidationSchema = Yup.object().shape({
       then: () => Yup.string()
           .email('Invalid email address')
           .required('Email is required'),
-      otherwise: () =>  Yup.string()
+      otherwise: () => Yup.string()
           .matches(
             /^\(\d{2}\) \d{5}-\d{4}$/,
             'Phone number must be in the format (99) 99999-9999'

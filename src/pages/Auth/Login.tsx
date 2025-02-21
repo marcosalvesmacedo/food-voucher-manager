@@ -1,18 +1,21 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import { Link } from "react-router-dom";
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { Link } from 'react-router-dom';
+import { useAuth } from './hooks/authHook';
 import { loginValidationSchema } from './validations/loginValidator';
-import { useAuth } from './hooks/loginHook';
-
+// import { Persist } from 'formik-persist'; not used beucase save data in localstorage and sessionStorage.
+import { useFormContext } from './contexts/loginFormContext';
+import { LoginFormValues } from './types/auth';
 import './styles/login.css';
-
 
 const Login = () => {
   const { handleLogin, loading, error } = useAuth();
+  const { formValues, updateFormValues, resetForm } = useFormContext();
 
-  const handleSubmit = async (values: { email: string; password: string }, { setSubmitting }: any) => {
+  const handleSubmit = async (values: LoginFormValues, { setSubmitting }: any) => {
     try {
       const result = await handleLogin(values.email, values.password);
-      console.log(result)
+      console.log(result);
+      resetForm('login');
     } catch (err) {
       alert(err);
     } finally {
@@ -27,10 +30,11 @@ const Login = () => {
         <h2 className="login-title">Login</h2>
 
         <Formik
-          initialValues={{ email: "", password: "" }}
+          initialValues={formValues.login}
           validationSchema={loginValidationSchema}
-          onSubmit={handleSubmit}>
-          
+          onSubmit={handleSubmit}
+          validateOnMount>
+           {({ isSubmitting, isValid, values }) => (
             <Form className="space-y-4">
 
               <div>
@@ -54,16 +58,17 @@ const Login = () => {
               <button 
                 type="submit"
                 className="submit-button"
-                disabled={loading}>
+                disabled={isSubmitting || !isValid}>
                 {loading ? "Logging in..." : "Login"}
               </button>
 
               <div className="link-container">
-                <Link to="/register" className="link">Don't have an account? Register</Link>
-                <Link to="/recover-password" className="link">Forgot password? Recover</Link>
+                <Link to="/register" className="link" onClick={() => updateFormValues('login', values)}>Don't have an account? Register</Link>
+                <Link to="/recovery-password" className="link" onClick={() => updateFormValues('login', values)}>Forgot password? Recover</Link>
               </div>
             </Form>
-
+            )}
+            {/* <Persist name="form-name" /> not used beucase save data in localstorage and sessionStorage */}
         </Formik>
         {error && <p className="error-message">{error}</p>}
       </div>

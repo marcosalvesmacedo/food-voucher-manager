@@ -28,9 +28,7 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      if (error.response.status === 401) {
-        console.log('Unauthorized! Redirecting to login...');
-      } else if (error.response.status === 500) {
+      if (error.response.status === 500) {
         console.log('Server Error! Try again later.');
       }
     }
